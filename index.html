@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Data Playground — build charts with an agent that never reads your data</title>
+<meta name="description" content="Drop a CSV. The page builds a semantic model of it and hands that model to an agent through WebMCP, so the agent can analyse your data without a single row leaving the tab.">
+<link rel="stylesheet" href="./src/ui/style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect width='16' height='16' rx='2' fill='%231f4f82'/><rect x='3' y='8' width='2.5' height='5' fill='white'/><rect x='6.75' y='5' width='2.5' height='8' fill='white'/><rect x='10.5' y='3' width='2.5' height='10' fill='white'/></svg>">
+<script src="https://cdn.jsdelivr.net/npm/vega@5.30.0/build/vega.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vega-lite@5.21.0/build/vega-lite.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vega-embed@6.26.0/build/vega-embed.min.js"></script>
+<!-- Only needed if you ask for a GIF, so it must never hold up the page. -->
+<script defer src="https://cdn.jsdelivr.net/npm/gif.js@0.2.0/dist/gif.js"></script>
+</head>
+<body>
+
+<div class="shell">
+
+  <header class="masthead">
+    <h1 class="wordmark">Data <em>Playground</em></h1>
+    <p class="tagline">Build charts with an agent that never reads your data</p>
+    <div class="counter" title="This page has no server to upload to.">
+      <span class="dot"></span>
+      <span>bytes uploaded: <b>0</b></span>
+    </div>
+  </header>
+
+  <div id="toolbar" class="toolbar" hidden></div>
+
+  <main class="stage-wrap">
+    <div id="canvas" class="canvas"></div>
+  </main>
+
+  <aside>
+    <section>
+      <h2>Agent connection</h2>
+      <div id="mcp-status" class="status"></div>
+    </section>
+
+    <section>
+      <h2>Tools on offer</h2>
+      <div id="tool-list"></div>
+    </section>
+
+    <section>
+      <h2>The model</h2>
+      <div id="fields" class="fields"></div>
+    </section>
+
+    <section>
+      <h2>What happened</h2>
+      <ul id="log" class="log"></ul>
+    </section>
+  </aside>
+
+</div>
+
+<!-- Outside the grid: the panel floats over the page. -->
+<div id="panel" class="panel-slot"></div>
+
+<script type="module" src="./src/main.js"></script>
+</body>
+</html>

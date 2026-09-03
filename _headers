@@ -1,0 +1,7 @@
+# Cloudflare Pages / Netlify plain-text header file.
+# Kept alongside netlify.toml so the repo deploys to either host unchanged.
+/*
+  Permissions-Policy: tools=(self)
+  X-Frame-Options: DENY
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: no-referrer

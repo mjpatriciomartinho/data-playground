@@ -1,0 +1,24 @@
+# Static site: no build step, the repo root is the site.
+[build]
+  publish = "."
+  command = ""
+
+# WebMCP only registers in a top-level browsing context, and is disabled
+# outright if the document is put in its own agent cluster. Neither of the
+# headers below is optional for this app to work.
+[[headers]]
+  for = "/*"
+  [headers.values]
+    # Permissions-Policy "tools" governs WebMCP; self is the default but is
+    # stated explicitly so a platform default cannot quietly remove it.
+    Permissions-Policy = "tools=(self)"
+    # Refuse to be framed. The API would not register in an iframe anyway;
+    # this makes that a deliberate stance rather than an accident.
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "no-referrer"
+
+[[headers]]
+  for = "/src/*"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"

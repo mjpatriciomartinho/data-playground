@@ -1,0 +1,1221 @@
+/* Data Playground
+ *
+ * The visual world here is the ledger: ruled paper, accountant's blue ink, and
+ * red reserved exclusively for negative numbers, the way a bookkeeper would.
+ * Nothing is coloured for decoration. If something is red on this page, the
+ * business is losing money.
+ */
+
+:root {
+  color-scheme: light;
+
+  --paper: #f2f3f0;
+  --paper-raised: #fbfbfa;
+  --rule: #d8dad4;
+  --rule-strong: #b9bcb4;
+
+  --ink: #1b2027;
+  --ink-soft: #565d67;
+  --ink-faint: #868d96;
+
+  /* The application's own colours. These do not follow the dashboard theme:
+     the tool stays neutral so the board can be judged against it. */
+  --blue: var(--accent, #1f4f82);
+  --blue-soft: var(--accent-soft, #e4ecf5);
+  --red: #a8322a;
+  --red-soft: #f6e5e3;
+  --green: #2f6146;
+
+  --agent: #6b3fa0;
+  --agent-soft: #efe8f8;
+
+  --display: 'Iowan Old Style', 'Palatino Linotype', Palatino, 'Times New Roman', serif;
+  --sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+
+  --gutter: 20px;
+  --radius: 3px;
+}
+
+/* The theme is now chosen in the page, not by the OS: a dark paper colour
+   produces the dark treatment, and applyTheme() writes every token. Leaving an
+   OS-level media query here would fight it. */
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---- shell ------------------------------------------------------------- */
+
+.shell {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  grid-template-rows: auto 1fr;
+  min-height: 100vh;
+}
+
+header.masthead {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  padding: 14px var(--gutter);
+  border-bottom: 1.5px solid var(--rule-strong);
+  background: var(--paper-raised);
+  flex-wrap: wrap;
+}
+
+.wordmark {
+  font-family: var(--display);
+  font-size: 21px;
+  letter-spacing: -0.01em;
+  margin: 0;
+  font-weight: 600;
+}
+
+.wordmark em {
+  font-style: italic;
+  color: var(--blue);
+}
+
+.tagline {
+  font-size: 12px;
+  color: var(--ink-soft);
+  margin: 0;
+}
+
+/* The upload counter is the whole privacy argument, so it gets to be a
+   readable instrument rather than a badge. */
+.counter {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--ink-soft);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  padding: 5px 10px;
+  background: var(--paper);
+}
+
+.counter b {
+  color: var(--green);
+  font-weight: 600;
+}
+
+.counter .dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--green);
+}
+
+/* ---- main column ------------------------------------------------------- */
+
+main {
+  min-width: 0;
+  min-height: 0;
+}
+
+.filterbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 10px 12px;
+  background: var(--paper-raised);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  margin-bottom: 16px;
+}
+
+.filterbar label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--ink-faint);
+  font-weight: 600;
+}
+
+select, button, input {
+  font-family: inherit;
+  font-size: 13px;
+  color: var(--ink);
+  background: var(--paper);
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius);
+  padding: 5px 9px;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:hover:not(:disabled) {
+  border-color: var(--blue);
+  color: var(--blue);
+}
+
+button:disabled { opacity: 0.45; cursor: default; }
+
+button.primary {
+  background: var(--blue);
+  border-color: var(--blue);
+  color: #fff;
+}
+
+button.primary:hover { opacity: 0.9; color: #fff; }
+
+:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 2px;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--mono);
+  font-size: 11px;
+  background: var(--blue-soft);
+  color: var(--blue);
+  border-radius: 2px;
+  padding: 3px 7px;
+}
+
+.chip button {
+  border: 0;
+  background: none;
+  padding: 0;
+  color: inherit;
+  font-size: 13px;
+  line-height: 1;
+}
+
+/* ---- canvas ------------------------------------------------------------ */
+
+.canvas {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 16px;
+}
+
+.card {
+  background: var(--paper-raised);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  padding: 13px 14px 10px;
+  min-width: 0;
+  animation: settle 0.28s ease-out;
+}
+
+@keyframes settle {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card { animation: none; }
+}
+
+.card.pinned { border-color: var(--blue); box-shadow: inset 3px 0 0 var(--blue); }
+
+.card header {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.card h3 {
+  font-family: var(--display);
+  font-size: 15px;
+  font-weight: 600;
+  margin: 0;
+  line-height: 1.25;
+  flex: 1;
+  min-width: 0;
+  /* One line: a wrapping title silently steals height from the chart. */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.card .meta {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  color: var(--ink-faint);
+  margin-bottom: 8px;
+  word-break: break-word;
+}
+
+.card .actions { display: flex; gap: 4px; }
+
+.card .actions button {
+  border: 0;
+  background: none;
+  padding: 2px 4px;
+  font-size: 12px;
+  color: var(--ink-faint);
+  border-radius: 2px;
+}
+
+.card .actions button:hover { color: var(--blue); background: var(--blue-soft); }
+
+.chart { width: 100%; min-height: 200px; }
+
+.drill-path {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  color: var(--ink-faint);
+  border-top: 1px dashed var(--rule);
+  padding-top: 6px;
+  margin-top: 6px;
+}
+
+.note {
+  font-size: 12.5px;
+  line-height: 1.45;
+  border-left: 2px solid var(--agent);
+  background: var(--agent-soft);
+  padding: 6px 9px;
+  border-radius: 0 2px 2px 0;
+  margin-top: 8px;
+}
+
+.note b { color: var(--agent); font-weight: 600; }
+
+/* ---- empty state ------------------------------------------------------- */
+
+.empty {
+  grid-column: 1 / -1;
+  border: 1.5px dashed var(--rule-strong);
+  border-radius: var(--radius);
+  padding: 44px 26px;
+  text-align: center;
+}
+
+.empty.drag { border-color: var(--blue); background: var(--blue-soft); }
+
+.empty h2 {
+  font-family: var(--display);
+  font-size: 24px;
+  font-weight: 600;
+  margin: 0 0 8px;
+  letter-spacing: -0.01em;
+}
+
+.empty p {
+  color: var(--ink-soft);
+  max-width: 46ch;
+  margin: 0 auto 8px;
+}
+
+.empty .row { display: flex; gap: 10px; justify-content: center; margin-top: 18px; }
+
+/* ---- right rail: the tool inspector ------------------------------------ */
+
+aside {
+  border-left: 1.5px solid var(--rule-strong);
+  background: var(--paper-raised);
+  padding: 14px;
+  overflow-y: auto;
+  max-height: calc(100vh - 58px);
+  position: sticky;
+  top: 0;
+}
+
+aside h2 {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ink-faint);
+  font-weight: 600;
+  margin: 0 0 8px;
+}
+
+aside section + section { margin-top: 20px; }
+
+.tool {
+  font-family: var(--mono);
+  font-size: 11px;
+  padding: 4px 7px;
+  border-radius: 2px;
+  color: var(--ink-soft);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border-left: 2px solid transparent;
+}
+
+.tool.fresh {
+  background: var(--blue-soft);
+  border-left-color: var(--blue);
+  color: var(--blue);
+}
+
+/* A tool lighting up as the agent calls it is the clearest possible evidence
+   that the page, not a server, is doing the work. */
+.tool.firing {
+  background: var(--agent-soft);
+  border-left-color: var(--agent);
+  color: var(--agent);
+  font-weight: 600;
+}
+
+.tool .ro {
+  margin-left: auto;
+  font-size: 9px;
+  letter-spacing: 0.04em;
+  color: var(--ink-faint);
+}
+
+.status {
+  font-size: 12px;
+  line-height: 1.45;
+  padding: 8px 10px;
+  border-radius: var(--radius);
+  border: 1px solid var(--rule);
+}
+
+.status.on { border-color: var(--green); color: var(--green); }
+.status.off { border-color: var(--rule-strong); color: var(--ink-soft); }
+
+.log { list-style: none; margin: 0; padding: 0; }
+
+.log li {
+  font-size: 12px;
+  line-height: 1.4;
+  padding: 5px 0 5px 9px;
+  border-left: 2px solid var(--rule);
+  color: var(--ink-soft);
+}
+
+.log li.agent { border-left-color: var(--agent); }
+.log li.human { border-left-color: var(--blue); }
+
+.log .who {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  display: block;
+  color: var(--ink-faint);
+}
+
+.fields { font-size: 12px; }
+
+.fields details { border-top: 1px solid var(--rule); padding: 5px 0; }
+.fields details:last-of-type { border-bottom: 1px solid var(--rule); }
+
+.fields summary {
+  cursor: pointer;
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.fields summary::-webkit-details-marker { display: none; }
+
+.fields .fname { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.fields .tag {
+  font-family: var(--mono);
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 1px 4px;
+  border-radius: 2px;
+  background: var(--rule);
+  color: var(--ink-soft);
+}
+
+.fields .tag.measure { background: var(--blue-soft); color: var(--blue); }
+.fields .tag.ratio { background: var(--red-soft); color: var(--red); }
+.fields .tag.calc { background: var(--agent-soft); color: var(--agent); }
+
+.fields .detail {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  color: var(--ink-faint);
+  padding: 3px 0 3px 10px;
+  line-height: 1.5;
+}
+
+@media (max-width: 900px) {
+  .shell { grid-template-columns: 1fr; }
+  aside { border-left: 0; border-top: 1.5px solid var(--rule-strong); position: static; max-height: none; }
+}
+
+/* ---- toolbar ----------------------------------------------------------- */
+/* One row, read left to right: what is loaded, what is filtered, what you can
+   add, and how to get the result out. There used to be three places to make a
+   chart; now there is one. */
+
+.toolbar {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 9px var(--gutter);
+  border-bottom: 1px solid var(--rule);
+  background: var(--paper-raised);
+}
+
+.tb-dataset { display: flex; align-items: baseline; gap: 8px; min-width: 0; }
+
+.tb-name {
+  font-weight: 600;
+  font-size: 13px;
+  max-width: 22ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tb-rows { font-family: var(--mono); font-size: 11px; color: var(--ink-faint); }
+
+.tb-quiet {
+  border: 0;
+  background: none;
+  font-size: 12px;
+  color: var(--ink-faint);
+  padding: 3px 6px;
+  border-radius: 2px;
+}
+
+.tb-quiet:hover { color: var(--blue); background: var(--blue-soft); }
+
+.tb-sep { width: 1px; align-self: stretch; background: var(--rule); }
+
+.tb-filters { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
+.tb-select { font-size: 12px; padding: 4px 7px; }
+
+.tb-actions { margin-left: auto; display: flex; align-items: center; gap: 7px; }
+
+.tb-menu { position: relative; }
+
+.tb-menu-list {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 5px);
+  z-index: 40;
+  min-width: 250px;
+  background: var(--paper-raised);
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.14);
+  padding: 4px;
+}
+
+.tb-menu-list button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  border: 0;
+  background: none;
+  font-size: 12.5px;
+  padding: 6px 9px;
+  border-radius: 2px;
+}
+
+.tb-menu-list button:hover { background: var(--blue-soft); color: var(--blue); }
+.tb-menu-div { height: 1px; background: var(--rule); margin: 4px 2px; }
+
+/* ---- the chart panel --------------------------------------------------- */
+/* One panel, one job: decide what a chart shows, see it, then commit. */
+
+.panel-slot { position: fixed; inset: 0 0 0 auto; z-index: 50; pointer-events: none; }
+body.panel-open .panel-slot { pointer-events: auto; }
+
+.panel {
+  width: min(400px, 92vw);
+  height: 100%;
+  background: var(--paper-raised);
+  border-left: 1.5px solid var(--rule-strong);
+  box-shadow: -8px 0 28px rgba(0, 0, 0, 0.13);
+  display: flex;
+  flex-direction: column;
+  animation: slide-in 0.18s ease-out;
+}
+
+@keyframes slide-in { from { transform: translateX(100%); } to { transform: none; } }
+@media (prefers-reduced-motion: reduce) { .panel { animation: none; } }
+
+.panel-head {
+  display: flex;
+  align-items: center;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--rule);
+}
+
+.panel-head h2 {
+  font-family: var(--display);
+  font-size: 17px;
+  font-weight: 600;
+  margin: 0;
+  flex: 1;
+}
+
+.panel-close {
+  border: 0;
+  background: none;
+  font-size: 19px;
+  line-height: 1;
+  color: var(--ink-faint);
+  padding: 2px 7px;
+  border-radius: 2px;
+}
+
+.panel-close:hover { background: var(--red-soft); color: var(--red); }
+
+.panel-body { padding: 14px; overflow-y: auto; flex: 1; }
+
+.panel-row { margin-bottom: 14px; display: flex; flex-direction: column; gap: 5px; }
+
+.panel-row > label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ink-faint);
+  font-weight: 600;
+}
+
+.panel-row > select, .panel-row > input { width: 100%; }
+
+/* Two controls on one line: the field gets the room, the aggregation takes
+   only what it needs. Both must stay wide enough to read. */
+.panel-pair { display: flex; gap: 6px; }
+.panel-pair > select { min-width: 0; }
+.panel-pair > select:first-child { flex: 3 1 auto; }
+.panel-pair > select:last-child { flex: 1 1 auto; max-width: 40%; }
+.panel-pair > select:only-child { flex: 1 1 100%; max-width: none; }
+
+.panel-hint { font-size: 11.5px; color: var(--ink-faint); font-style: italic; }
+.panel-error { font-size: 12.5px; color: var(--red); margin: 0; }
+
+.panel-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ink-faint);
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+
+.panel-preview {
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  background: var(--paper);
+  padding: 8px;
+  min-height: 190px;
+  margin-bottom: 14px;
+  /* Vega measures its container, so the container must have a width before it
+     draws. Without this the preview collapses to its axis. */
+  width: 100%;
+  overflow: hidden;
+}
+
+.panel-preview .vega-embed, .panel-preview svg { width: 100%; }
+
+.panel-actions { display: flex; align-items: center; gap: 10px; }
+.panel-commit { flex: 1; }
+
+.mark-picker { display: flex; gap: 3px; flex-wrap: wrap; }
+
+.mark {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11.5px;
+  padding: 5px 8px;
+  border: 1px solid var(--rule-strong);
+  background: var(--paper);
+  border-radius: var(--radius);
+}
+
+.mark .glyph { font-size: 12px; line-height: 1; }
+.mark.on { background: var(--blue); border-color: var(--blue); color: #fff; }
+.mark.on:hover { color: #fff; }
+.mark:disabled { opacity: 0.32; }
+
+/* ---- the free canvas --------------------------------------------------- */
+/* The board is a fixed shape, drawn at true size and scaled to fit the window,
+   so what you arrange is exactly what exports. Cards carry their own position
+   and size on it. */
+
+.stage-wrap {
+  padding: var(--gutter);
+  overflow: auto;
+  position: relative;
+  /* The stage is transform-scaled, which does not affect layout height, so the
+     wrapper is given an explicit height in JS. It must be free to take it. */
+  align-self: start;
+  min-height: 0;
+}
+
+.canvas.stage {
+  /* Inside the canvas, the dashboard's own theme takes over. */
+  --paper: var(--board-paper, #f2f3f0);
+  --paper-raised: var(--board-card, #fbfbfa);
+  --rule: var(--board-rule, #d8dad4);
+  --rule-strong: var(--board-rule-strong, #b9bcb4);
+  --ink: var(--board-ink, #1b2027);
+  --ink-soft: var(--board-ink-soft, #565d67);
+  --ink-faint: var(--board-ink-faint, #868d96);
+  --blue: var(--board-accent, #1f4f82);
+  --blue-soft: var(--board-accent-soft, #e4ecf5);
+  --red: var(--board-negative, #a8322a);
+  --red-soft: var(--board-negative-soft, #f6e5e3);
+  --display: var(--board-display);
+  --sans: var(--board-sans);
+  color: var(--board-ink, #1b2027);
+  /* Scaling by transform leaves the element's own 1080px in the layout flow,
+     which produces a scrollbar for space nothing occupies. Taking it out of
+     flow removes the phantom; the wrapper carries the real height in its own
+     inline style, set from the scale. */
+  position: absolute;
+  top: var(--gutter);
+  left: var(--gutter);
+  transform-origin: top left;
+  background: var(--board-paper, #f2f3f0);
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius);
+  /* A faint grid, so alignment is visible while dragging. */
+  background-image:
+    linear-gradient(to right, color-mix(in srgb, var(--rule) 55%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in srgb, var(--rule) 55%, transparent) 1px, transparent 1px);
+  background-size: 20px 20px;
+  box-shadow: 0 2px 14px rgba(0, 0, 0, 0.07);
+}
+
+.canvas.stage .card {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: none;
+}
+
+.card.manipulating {
+  box-shadow: 0 8px 26px rgba(0, 0, 0, 0.18);
+  z-index: 30;
+  user-select: none;
+}
+
+.card-grip { cursor: grab; touch-action: none; }
+.card.manipulating .card-grip { cursor: grabbing; }
+
+.card-resize {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 18px;
+  height: 18px;
+  cursor: nwse-resize;
+  touch-action: none;
+  opacity: 0;
+  transition: opacity 0.12s;
+}
+
+.card-resize::after {
+  content: '';
+  position: absolute;
+  right: 3px;
+  bottom: 3px;
+  width: 9px;
+  height: 9px;
+  border-right: 2px solid var(--blue);
+  border-bottom: 2px solid var(--blue);
+  border-radius: 0 0 2px 0;
+}
+
+.card:hover .card-resize, .card.manipulating .card-resize { opacity: 1; }
+
+.chart {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  /* The last line of defence: a chart that renders taller than its card is
+     clipped here rather than escaping the card's rounded corner. */
+  overflow: hidden;
+}
+.chart.drillable, .chart.drillable svg { cursor: pointer; }
+
+/* ---- card controls ----------------------------------------------------- */
+/* Icons alone were unreadable at 12px. Every control now carries its name. */
+
+.card header { align-items: center; gap: 10px; flex-shrink: 0; }
+.card .actions { display: flex; gap: 2px; flex-shrink: 0; }
+
+.card-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: 1px solid transparent;
+  background: none;
+  padding: 3px 7px;
+  font-size: 11.5px;
+  color: var(--ink-soft);
+  border-radius: var(--radius);
+  line-height: 1.4;
+}
+
+.card-btn-glyph { font-size: 12px; line-height: 1; }
+.card-btn-label { letter-spacing: 0.01em; }
+
+.card-btn:hover { background: var(--blue-soft); color: var(--blue); border-color: color-mix(in srgb, var(--blue) 22%, transparent); }
+.card-btn.on { color: var(--blue); background: var(--blue-soft); }
+.card-btn.danger:hover { background: var(--red-soft); color: var(--red); border-color: color-mix(in srgb, var(--red) 25%, transparent); }
+
+/* Below a phone-ish width the labels would wrap the header onto three lines. */
+@media (max-width: 700px) {
+  .card-btn-label { display: none; }
+}
+
+.crumb-back {
+  border: 0;
+  background: none;
+  padding: 0 3px;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  color: var(--blue);
+}
+
+.crumb-back:hover { text-decoration: underline; }
+
+/* ---- toolbar rows ------------------------------------------------------ */
+
+.tb-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.tb-row-filters {
+  padding-top: 9px;
+  margin-top: 9px;
+  border-top: 1px solid var(--rule);
+}
+
+.tb-size { display: flex; align-items: center; gap: 7px; }
+.tb-hint { font-size: 11.5px; color: var(--ink-faint); font-style: italic; }
+
+/* ---- recording toast --------------------------------------------------- */
+
+.recording {
+  position: fixed;
+  bottom: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 90;
+  background: var(--ink);
+  color: var(--paper);
+  font-family: var(--mono);
+  font-size: 12px;
+  padding: 9px 16px;
+  border-radius: 20px;
+}
+
+/* ---- KPI card ---------------------------------------------------------- */
+/* The headline. One number, set large enough to read across a room, with the
+   comparison that gives it meaning underneath. */
+
+/* The KPI fills whatever the card gives it. A fixed min-height here overflowed
+   any card smaller than 200px and clipped the number it exists to show. */
+.chart-kpi {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.chart-kpi .kpi { max-height: 100%; }
+
+.kpi { text-align: center; padding: 8px 0; }
+
+.kpi-value {
+  font-family: var(--display);
+  font-size: clamp(30px, 5vw, 60px); /* overridden per-card by renderKPI */
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--blue);
+}
+
+.kpi-value.negative { color: var(--red); }
+
+.kpi-label {
+  font-size: 12px;
+  color: var(--ink-soft);
+  margin-top: 8px;
+  letter-spacing: 0.02em;
+}
+
+.kpi-delta {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  margin-top: 12px;
+  padding: 4px 10px;
+  border-radius: 12px;
+}
+
+.kpi-delta.up { color: var(--green); background: color-mix(in srgb, var(--green) 12%, transparent); }
+.kpi-delta.down { color: var(--red); background: var(--red-soft); }
+.kpi-arrow { font-size: 10px; }
+.kpi-vs { font-weight: 400; font-size: 11px; opacity: 0.75; }
+
+.kpi-rows {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  color: var(--ink-faint);
+  margin-top: 10px;
+}
+
+/* ---- filters ----------------------------------------------------------- */
+/* A filter now says what it filters, how, and to what. It used to be a bare
+   dropdown that produced an unexplained chip. */
+
+.tb-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ink-faint);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.filters { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+
+.filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  background: var(--blue-soft);
+  border: 1px solid color-mix(in srgb, var(--blue) 25%, transparent);
+  border-radius: 13px;
+  padding: 3px 4px 3px 10px;
+}
+
+.filter-field { font-weight: 600; color: var(--blue); }
+.filter-op { color: var(--ink-soft); font-size: 11px; }
+.filter-value { color: var(--ink); font-family: var(--mono); font-size: 11px; }
+
+.filter-x {
+  border: 0;
+  background: none;
+  color: var(--ink-faint);
+  font-size: 14px;
+  line-height: 1;
+  padding: 1px 5px;
+  border-radius: 50%;
+}
+
+.filter-x:hover { background: var(--red-soft); color: var(--red); }
+
+.filter-add-btn {
+  border: 1px dashed var(--rule-strong);
+  background: none;
+  font-size: 12px;
+  color: var(--ink-soft);
+  border-radius: 13px;
+  padding: 4px 11px;
+}
+
+.filter-add-btn:hover { border-color: var(--blue); color: var(--blue); border-style: solid; }
+
+.filter-form {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  flex-wrap: wrap;
+  background: var(--paper);
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius);
+  padding: 5px 7px;
+}
+
+.filter-select, .filter-input { font-size: 12px; padding: 4px 6px; max-width: 190px; }
+.filter-form button { font-size: 12px; padding: 4px 10px; }
+.filter-cancel { border: 0; background: none; color: var(--ink-faint); }
+
+.meta-filter {
+  display: inline-block;
+  margin-left: 7px;
+  padding: 1px 7px;
+  border-radius: 9px;
+  background: var(--blue-soft);
+  color: var(--blue);
+  font-family: var(--sans);
+  font-size: 10.5px;
+}
+
+/* ---- onboarding -------------------------------------------------------- */
+/* Straight after a file loads, the only question is "what now". Two named
+   routes answer it. */
+
+.empty.onboard { text-align: center; padding: 40px 26px; }
+
+.routes {
+  display: flex;
+  gap: 14px;
+  justify-content: center;
+  margin-top: 22px;
+  flex-wrap: wrap;
+}
+
+.route {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  text-align: left;
+  width: min(300px, 100%);
+  padding: 15px 17px;
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius);
+  background: var(--paper-raised);
+}
+
+.route:hover { border-color: var(--blue); background: var(--blue-soft); }
+.route:hover .route-title { color: var(--blue); }
+
+.route-title { font-family: var(--display); font-size: 16px; font-weight: 600; }
+.route-sub { font-size: 12.5px; color: var(--ink-soft); line-height: 1.4; }
+.route-agent { margin-top: 16px; font-size: 12.5px; color: var(--ink-faint); font-style: italic; }
+
+.panel-check { display: flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 400; text-transform: none; letter-spacing: 0; color: var(--ink); }
+.panel-check input { width: auto; }
+
+/* Dropping past the last card moves a chart to the end. */
+.canvas.drop-end { box-shadow: inset 0 -3px 0 var(--blue); }
+
+/* A comparison against a period the data cuts short is not a real trend, and
+   must not be dressed as one. */
+.kpi-delta.partial { color: var(--ink-soft); background: var(--rule); }
+
+.kpi-caveat {
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--ink-faint);
+  max-width: 34ch;
+  margin: 8px auto 0;
+  font-style: italic;
+}
+
+/* ---- the drag grip ----------------------------------------------------- */
+/* The header band is 21 canvas pixels, which at a scaled-down canvas is a
+   14-pixel target. The dots make the handle findable and give the pointer
+   somewhere deliberate to land. */
+
+.card-grip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 10px 4px;
+  margin: -13px -14px 3px;
+  flex-wrap: nowrap;
+  border-bottom: 1px solid transparent;
+  border-radius: var(--radius) var(--radius) 0 0;
+  min-height: 30px;
+}
+
+.card:hover .card-grip { background: color-mix(in srgb, var(--ink) 4%, transparent); border-bottom-color: var(--rule); }
+
+.grip-dots {
+  flex-shrink: 0;
+  width: 12px;
+  height: 16px;
+  opacity: 0.35;
+  background-image: radial-gradient(currentColor 1.1px, transparent 1.2px);
+  background-size: 5px 5px;
+  background-position: 0 2px;
+  color: var(--ink-faint);
+}
+
+.card:hover .grip-dots { opacity: 0.75; color: var(--blue); }
+.card.manipulating .grip-dots { opacity: 1; color: var(--blue); }
+
+/* When a resize hits the card's minimum, say so rather than silently stopping. */
+.card.at-minimum { outline: 2px solid var(--red); outline-offset: -2px; }
+.card.at-minimum .card-resize::after { border-color: var(--red); }
+
+.card.flash { animation: flash 1.2s ease-out; }
+
+@keyframes flash {
+  0%, 100% { box-shadow: none; }
+  20%, 60% { box-shadow: 0 0 0 3px var(--blue); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card.flash { animation: none; outline: 3px solid var(--blue); }
+}
+
+/* ---- context bar ------------------------------------------------------- */
+/* Filters, drill-downs and style: everything that changes what you are looking
+   at, together and at a readable size. */
+
+.context-bar {
+  padding-top: 10px;
+  margin-top: 10px;
+  border-top: 1px solid var(--rule);
+  gap: 20px;
+  align-items: flex-start;
+}
+
+.ctx-group { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.ctx-style { margin-left: auto; }
+
+.ctx-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: var(--ink-faint);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.ctx-quiet {
+  border: 0;
+  background: none;
+  font-size: 12px;
+  color: var(--ink-faint);
+  padding: 3px 7px;
+  border-radius: 2px;
+}
+
+.ctx-quiet:hover { color: var(--red); background: var(--red-soft); }
+
+/* A drill-down is a narrowing, so it looks like a filter, with its own exit. */
+.drill-wrap { display: inline-flex; align-items: stretch; }
+
+.drill-chip {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1px;
+  border: 1px solid color-mix(in srgb, var(--blue) 30%, transparent);
+  border-right: 0;
+  background: var(--blue-soft);
+  border-radius: 13px 0 0 13px;
+  padding: 4px 10px 4px 12px;
+  text-align: left;
+  max-width: 320px;
+}
+
+.drill-steps {
+  font-family: var(--mono);
+  font-size: 11.5px;
+  color: var(--blue);
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+.drill-of {
+  font-size: 10px;
+  color: var(--ink-faint);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+.drill-exit {
+  border: 1px solid color-mix(in srgb, var(--blue) 30%, transparent);
+  background: var(--blue-soft);
+  border-radius: 0 13px 13px 0;
+  color: var(--ink-faint);
+  font-size: 15px;
+  line-height: 1;
+  padding: 0 10px;
+}
+
+.drill-exit:hover { background: var(--red-soft); color: var(--red); border-color: color-mix(in srgb, var(--red) 35%, transparent); }
+
+/* ---- style controls ---------------------------------------------------- */
+
+.swatch {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  color: var(--ink-soft);
+  cursor: pointer;
+}
+
+.swatch input[type='color'] {
+  width: 26px;
+  height: 24px;
+  padding: 2px;
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius);
+  background: var(--paper);
+  cursor: pointer;
+}
+
+.swatch-label { letter-spacing: 0.01em; }
+
+@media (max-width: 1100px) {
+  .swatch-label { display: none; }
+  .ctx-style { margin-left: 0; }
+}
+
+/* Buttons on an accent background need text that survives a light accent. */
+button.primary { color: var(--on-accent, #fff); }
+button.primary:hover { color: var(--on-accent, #fff); }
+.mark.on { color: var(--on-accent, #fff); }
+.mark.on:hover { color: var(--on-accent, #fff); }
+
+/* A styling choice that costs the board its meaning gets said out loud. */
+.ctx-warn {
+  font-size: 11px;
+  line-height: 1.3;
+  color: var(--red);
+  max-width: 26ch;
+  border-left: 2px solid var(--red);
+  padding-left: 7px;
+}
+
+/* ---- per-card filters -------------------------------------------------- */
+/* Narrowing one card is a small action and should not require a side panel. */
+
+.card-filters { margin: -2px 0 7px; flex-shrink: 0; }
+.meta-spec { display: block; }
+
+.filters-compact { gap: 4px; }
+.filters-compact .filter-chip { font-size: 11px; padding: 2px 3px 2px 8px; border-radius: 11px; }
+.filters-compact .filter-op { font-size: 10px; }
+.filters-compact .filter-value { font-size: 10px; }
+
+.filters-compact .filter-add-btn {
+  font-size: 11px;
+  padding: 2px 9px;
+  opacity: 0;
+  transition: opacity 0.12s;
+}
+
+/* The control appears when the card is in play, so a finished board stays clean. */
+.card:hover .filters-compact .filter-add-btn,
+.card:focus-within .filters-compact .filter-add-btn { opacity: 1; }
+.filters-compact .filter-form { padding: 4px 6px; }
+.filters-compact .filter-select, .filters-compact .filter-input { font-size: 11px; max-width: 150px; }
