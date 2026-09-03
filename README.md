@@ -2,7 +2,6 @@
 
 Build charts with an agent that never reads your data. Bytes uploaded: 0.
 
-**Live demo:** <!-- TODO: add the deployed URL here -->
 **Requires:** ChatGPT's in-app browser, or Chrome 149+ with `chrome://flags/#enable-webmcp-testing` enabled.
 The page works without WebMCP too, by hand.
 
